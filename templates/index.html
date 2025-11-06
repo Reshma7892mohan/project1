@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Excel Quality Check - SoftNis</title>
+  <link href="{{ url_for('static', filename='images/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #e2e8f0);
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+    a {
+      color: #0d9488;
+      text-decoration: none;
+    }
+    a:hover, a:focus {
+      text-decoration: underline;
+      outline: none;
+    }
+    header {
+      background: #ffffffcc;
+      backdrop-filter: saturate(180%) blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    }
+    nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+     .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--color-text-dark);
+    }
+    .logo img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
+    .
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      font-weight: 600;
+    }
+    .nav-links a {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus {
+      background-color: #a5f3fc;
+      outline-offset: 2px;
+      outline: 2px solid #0d9488;
+    }
+    main {
+      flex-grow: 1;
+      max-width: 900px;
+      margin: 3rem auto 4rem;
+      padding: 0 1rem;
+      width: 100%;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: #475569;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .upload-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+      padding: 2.5rem 2rem;
+      max-width: 480px;
+      margin: 0 auto 4rem;
+      text-align: center;
+      transition: box-shadow 0.3s ease;
+    }
+    .upload-card:hover,
+    .upload-card:focus-within {
+      box-shadow: 0 12px 32px rgb(0 0 0 / 0.15);
+    }
+    .upload-card h2 {
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      color: #0f172a;
+    }
+    .upload-card p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    input[type="file"] {
+      padding: 1rem;
+      border: 2px dashed #94a3b8; /* medium blue-gray */
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #0f172a;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    input[type="file"]:hover,
+    input[type="file"]:focus {
+      background-color: #cbd5e1; /* light blue-gray */
+      border-color: #64748b; /* darker blue-gray */
+      outline: none;
+    }
+    button[type="submit"], button[type="button"] {
+      background-color: #cbd5e1; /* light blue-gray */
+      color: #1e293b; /* dark navy */
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #94a3b8; /* medium blue-gray */
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+    }
+    button[type="submit"]:hover,
+    button[type="submit"]:focus,
+    button[type="button"]:hover,
+    button[type="button"]:focus {
+      background-color: #94a3b8; /* medium blue-gray */
+      color: white;
+      border-color: #64748b; /* darker blue-gray */
+      outline-offset: 3px;
+      outline: 3px solid #94a3b8;
+      transform: scale(1.05);
+    }
+    .logout-button {
+      margin-top: 1rem;
+      background-color: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+    }
+    .logout-button:hover,
+    .logout-button:focus {
+      background-color: #991b1b;
+      outline: 3px solid #fca5a5;
+      transform: scale(1.05);
+    }
+    section.info-section {
+      max-width: 900px;
+      margin: 0 auto 4rem;
+      padding: 0 1rem;
+    }
+    section.info-section h2 {
+      font-weight: 700;
+      font-size: 2rem;
+      color: #0f172a;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .info-list {
+      list-style: none;
+      padding: 0;
+      max-width: 700px;
+      margin: 0 auto;
+      color: #475569;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    .info-list li {
+      position: relative;
+      padding-left: 1.75rem;
+      margin-bottom: 1rem;
+    }
+    .info-list li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #0d9488;
+      font-weight: 700;
+    }
+    .guidelines-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .guideline-card {
+      background: #ffffffcc;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      transition: box-shadow 0.3s ease;
+      user-select: none;
+    }
+    .guideline-card:hover,
+    .guideline-card:focus-within {
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+    }
+    .guideline-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 1rem;
+      filter: grayscale(40%);
+      transition: filter 0.3s ease;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .guideline-card:hover .guideline-icon,
+    .guideline-card:focus-within .guideline-icon {
+      filter: grayscale(0%);
+    }
+    .guideline-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+    .guideline-text {
+      color: #475569;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    footer {
+      background: #ffffffcc;
+      backdrop-filter: saturate(180%) blur(20px);
+      padding: 2rem 1rem 2.5rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.9rem;
+      border-top: 1px solid #cbd5e1;
+      user-select: none;
+    }
+    footer .company-info {
+      max-width: 900px;
+      margin: 0 auto 1rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #475569;
+    }
+    @media (max-width: 600px) {
+      .hero h1 {
+        font-size: 2.25rem;
+      }
+      .upload-card {
+        max-width: 100%;
+        padding: 2rem 1.5rem;
+      }
+      .guidelines-grid {
+        grid-template-columns: 1fr;
+      }
+      nav {
+        padding: 1rem;
+      }
+    }
+  </style>
+  <script>
+    function validateFile() {
+      const fileInput = document.querySelector('input[type="file"]');
+      const filePath = fileInput.value;
+      const allowedExtensions = /(\.xls|\.xlsx)$/i;
+      if (!allowedExtensions.exec(filePath)) {
+        alert('Please upload a file with .xls or .xlsx extension.');
+        fileInput.value = '';
+        return false;
+      }
+      return true;
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <nav aria-label="Primary navigation">
+      <div class="logo" aria-label="Company Logo">
+        <img src="{{ url_for('static', filename='images/softnis-logo.png') }}">
+        <span></span>
+      </div>
+      <div class="nav-links">
+        <a href="#upload" tabindex="0">Upload</a>
+        <a href="#prerequisites" tabindex="0">Prerequisites</a>
+        <a href="#guidelines" tabindex="0">Guidelines</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" role="banner">
+      <h1>Excel File Quality Check</h1>
+      <p>Upload your Excel files to perform thorough quality checks and comparisons with ease.</p>
+    </section>
+
+    <section id="upload" class="upload-card" aria-labelledby="upload-title">
+      <h2 id="upload-title">Upload Your Excel File</h2>
+      <p>Supported file types: <strong>.xls, .xlsx</strong></p>
+      <form method="POST" enctype="multipart/form-data" onsubmit="return validateFile();" aria-describedby="upload-desc">
+        <input type="file" name="file" accept=".xls,.xlsx" required aria-required="true" aria-label="Upload Excel file" />
+        <button type="submit">Upload and Check</button>
+      </form>
+      <form action="{{ url_for('logout') }}" method="get" style="margin-top: 1rem;">
+        <button type="submit" class="logout-button">Logout</button>
+      </form>
+    </section>
+
+    <section id="prerequisites" class="info-section" aria-labelledby="prereq-title">
+      <h2 id="prereq-title">Prerequisites</h2>
+      <ul class="info-list">
+        <li>SoftNis ID must be alphanumeric and the column name exactly <code>SoftNis ID</code>.</li>
+        <li>User ID or Name column must be exactly <code>User Name</code>.</li>
+        <li>Excel file must contain exactly 2 sheets named <em>Production Completed</em> and <em>Delivered</em>.</li>
+        <li>Column names in both sheets must be identical.</li>
+        <li>File format must be <code>.xls</code> or <code>.xlsx</code>.</li>
+      </ul>
+    </section>
+
+    <section id="guidelines" class="info-section" aria-labelledby="guidelines-title">
+      <h2 id="guidelines-title">Usage &amp; Quality Check Guidelines</h2>
+      <div class="guidelines-grid">
+        <article class="guideline-card" tabindex="0" role="region" aria-label="Compatible Formats">
+          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Compatible Formats Icon" class="guideline-icon" />
+          <h3 class="guideline-title">Compatible Formats</h3>
+          <p class="guideline-text">Upload Excel files in <code>.xls</code> or <code>.xlsx</code> formats only for reliable quality checks.</p>
+        </article>
+        <article class="guideline-card" tabindex="0" role="region" aria-label="Verify Data Accuracy">
+          <img src="https://cdn-icons-png.flaticon.com/512/1159/1159633.png" alt="Data Accuracy Icon" class="guideline-icon" />
+          <h3 class="guideline-title">Verify Data Accuracy</h3>
+          <p class="guideline-text">Ensure your Excel data is accurate and clean before uploading to avoid erroneous comparisons.</p>
+        </article>
+        <article class="guideline-card" tabindex="0" role="region" aria-label="Privacy and Security">
+          <img src="https://cdn-icons-png.flaticon.com/512/2913/2913995.png" alt="Privacy Icon" class="guideline-icon" />
+          <h3 class="guideline-title">Privacy &amp; Security</h3>
+          <p class="guideline-text">Uploaded files are processed securely. Your data privacy is our top priority.</p>
+        </article>
+        <article class="guideline-card" tabindex="0" role="region" aria-label="Support">
+          <img src="https://cdn-icons-png.flaticon.com/512/5674/5674631.png" alt="Support Icon" class="guideline-icon" />
+          <h3 class="guideline-title">Support</h3>
+          <p class="guideline-text">For any issues or inquiries, contact our support team through the Contact section below.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer aria-label="Footer company information">
+    <div class="company-info">
+      <p><strong>SoftNis Inc.</strong></p>
+      <p>123 Innovation Drive, Suite 100</p>
+      <p>Silicon Valley, CA 94043</p>
+      <p>Email: <a href="mailto:support@softnis.com">support@softnis.com</a> | Phone: (123) 456-7890</p>
+      <p>© 2024 SoftNis. All rights reserved.</p>
+    </div>
+  </footer>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        {% for category, message in messages %}
+          {% if category == 'popup' %}
+            alert("{{ message|safe }}");
+          {% endif %}
+        {% endfor %}
+      </script>
+    {% endif %}
+  {% endwith %}
+</body>
+</html>

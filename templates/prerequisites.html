@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoftNis Tool - Prerequisites</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            padding: 40px;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 600px;
+            margin: auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        ul {
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+                    font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            display: inline-block; /* Change to inline-block */
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .btn-large {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            display: inline-block; /* Change to inline-block */
+            transition: background-color 0.3s;
+        }
+        .btn-large:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📝 Important Prerequisites</h2>
+        <p>Please review the following requirements before proceeding:</p>
+        <ul>
+            <li> Only company employees with email IDs ending in <strong>@softnis.com</strong> are allowed to log in.</li>
+            <li> Only files with the extension <strong>.xls</strong> or <strong>.xlsx</strong> are supported.</li>
+            <li> The uploaded Excel file must contain exactly two sheets:
+                <ul>
+                    <li>i. <strong>Production Completed</strong></li>
+                    <li>ii. <strong>Delivered</strong></li>
+                </ul>
+            </li>
+            <li> Each row must contain a valid <strong>SoftNis ID</strong>, which should only include:
+                <ul>
+                    <li>i. Alphanumeric characters (A-Z, 0-9)</li>
+                    <li>ii. Underscores (_)</li>
+                    <li>iii. Note: If you input just a number like <strong>1234</strong>, it doesn't meet the expected format.</li>
+                    <li>iv. Example: <strong>HCPB11_10</strong></li>
+                </ul>
+            </li>
+            <li> The <strong>User Name</strong> value must match exactly for the same SoftNis ID across both sheets.</li>
+            <li> Both sheets must have matching SoftNis ID values; each SoftNis ID in one sheet must also exist in the other.</li>
+        </ul>
+        <a href="{{ url_for('index') }}" class="btn-large">📁 Upload a File</a>
+
+
+    </div>
+</body>
+</html>

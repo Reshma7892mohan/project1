@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quality Report Download</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* Reset and base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-image: url("{{ url_for('static', filename='images/background-css.jpg') }}"); /* Add your image URL here */
+      background-size: cover; /* Cover the entire background */
+      background-position: center; /* Center the image */
+      color: #6b7280; /* neutral gray */
+      font-size: 18px;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    main.container {
+      max-width: 480px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 48px 32px;
+      text-align: center;
+    }
+
+    header {
+      margin-bottom: 24px; /* Space between logo and title */
+      text-align: center;
+    }
+
+    .logo {
+      width: 160px; /* Adjust logo size as needed */
+      max-width: 90vw; /* Responsive max width */
+      filter: drop-shadow(0 0 3px rgba(0,0,0,0.2));
+      user-select: none;
+    }
+
+    h2 {
+      font-weight: 800;
+      font-size: 48px;
+      color: #111827; /* almost black */
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    p.description {
+      font-weight: 400;
+      font-size: 18px;
+      color: #4b5563; /* medium gray */
+      margin-bottom: 40px;
+    }
+
+    a.button-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 18px;
+      color: #ffffff;
+      background: linear-gradient(135deg, #4f46e5, #3b82f6);
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      gap: 10px;
+    }
+
+    a.button-primary:hover,
+    a.button-primary:focus-visible {
+      background: linear-gradient(135deg, #4338ca, #2563eb);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+      outline-offset: 2px;
+      outline: 2px solid #2563eb;
+    }
+
+    a.button-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      color: #4b5563;
+      background: transparent;
+      padding: 12px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      border: 2px solid transparent;
+      user-select: none;
+      gap: 8px;
+      margin-top: 28px;
+      transition: color 0.3s ease;
+    }
+
+    a.button-secondary:hover,
+    a.button-secondary:focus-visible {
+      color: #2563eb;
+      outline-offset: 2px;
+      outline: 2px solid #2563eb;
+      text-decoration: underline;
+    }
+
+    .material-icons {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    button.logout {
+      margin-top: 16px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #e53e3e; /* Red color for logout */
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button.logout:hover {
+      background: #c53030; /* Darker red on hover */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img
+      src="{{ url_for('static', filename='images/your-logo-file.png') }}"
+      alt="Company logo"
+      class="logo"
+      loading="lazy"
+      onerror="this.style.display='none'"
+      aria-hidden="false"
+    />
+  </header>
+
+  <main class="container" role="main" aria-labelledby="report-ready-title">
+    <h2 id="report-ready-title">Quality Report Ready</h2>
+    <p class="description">Your quality report has been generated and is ready for download.</p>
+    <a href="{{ download_link }}" class="button-primary" download aria-label="Download Quality Report">
+      <span class="material-icons" aria-hidden="true">download</span>
+      Download Report
+    </a>
+    <br />
+    <a href="{{ url_for('index') }}" class="button-secondary" aria-label="Upload another file">
+      <span class="material-icons" aria-hidden="true">upload_file</span>
+      Upload another file
+    </a>
+
+    <!-- Logout Button -->
+    <form action="{{ url_for('logout') }}" method="get" style="margin-top: 16px;">
+      <button type="submit" class="logout">Logout</button>
+    </form>
+  </main>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        {% for category, message in messages %}
+          alert("{{ message }}");
+        {% endfor %}
+      </script>
+    {% endif %}
+  {% endwith %}
+</body>
+</html>
