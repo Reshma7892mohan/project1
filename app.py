@@ -306,8 +306,11 @@ def download_file(filename):
 # ==========================
 # FINAL generate_report() – Fixed, Safe, Fast
 # ==========================
+# ==========================
+# FINAL generate_report() – 3 SHEETS, FAST, SAFE
+# ==========================
 def generate_report(file_path, df_prod, df_del, result_path, id_col):
-    # 1. Prepare Delivered dict
+    # 1. Prepare Delivered dict (unique by SoftNis ID)
     df_del = df_del.drop_duplicates(subset=[id_col])
     del_dict = df_del.set_index(id_col).to_dict('index')
 
@@ -319,16 +322,16 @@ def generate_report(file_path, df_prod, df_del, result_path, id_col):
     }
     ignore_cols.update(c for c in df_prod.columns if 'attribute name' in str(c).lower())
 
-    # 3. Initialize result columns
+    # 3. Initialize result columns (float for quality %)
     df_prod = df_prod.copy()
-    df_prod['Row Quality %'] = 0
-    df_prod['Right Values'] = 0
-    df_prod['Wrong Values'] = 0
-    df_prod['Error Report'] = ''
+    df_prod['Row Quality %'] = 0.0
+    df_prod['Right Values']   = 0
+    df_prod['Wrong Values']   = 0
+    df_prod['Error Report']   = ''
 
-    # 4. Comparison loop
+    # 4. Comparison loop – store integer column index
     user_stats = {}
-    red_cells = []
+    red_cells = []  # (row_idx, col_int) or (row_idx, slice(None))
 
     for idx, prod_row in df_prod.iterrows():
         sid = str(prod_row[id_col]).strip()
@@ -337,7 +340,7 @@ def generate_report(file_path, df_prod, df_del, result_path, id_col):
 
         if not sid or sid not in del_dict:
             errors.append("SoftNis ID not in Delivered")
-            red_cells.append(idx)
+            red_cells.append((idx, slice(None)))  # whole row red
         else:
             del_row = del_dict[sid]
 
@@ -352,17 +355,18 @@ def generate_report(file_path, df_prod, df_del, result_path, id_col):
                     right += 1
                 elif v1 or v2:
                     wrong += 1
-                    col_idx = df_prod.columns.get_loc(col)
+                    col_idx = df_prod.columns.get_loc(col)  # ← integer!
                     red_cells.append((idx, col_idx))
 
+            # User name mismatch
             p_user = str(prod_row.get('User Name', '')).strip().lower()
             d_user = str(del_row.get('User Name', '')).strip().lower()
             if p_user and d_user and p_user != d_user:
                 errors.append("User Name mismatch")
-                red_cells.append(idx)
+                red_cells.append((idx, slice(None)))
 
         total = right + wrong
-        quality = round(right / total * 100, 2) if total else 0
+        quality = round(right / total * 100, 2) if total else 0.0
 
         df_prod.at[idx, 'Row Quality %'] = quality
         df_prod.at[idx, 'Right Values']   = right
@@ -376,50 +380,51 @@ def generate_report(file_path, df_prod, df_del, result_path, id_col):
             user_stats[username]['total']   += total
 
     # 5. Clean NaN/inf
-    df_prod = df_prod.replace([float('inf'), -float('inf')], None)
-    df_prod = df_prod.fillna('')
+    df_prod = df_prod.replace([float('inf'), -float('inf')], None).fillna('')
 
-    # 6. Write with xlsxwriter + nan_inf_to_errors
+    # 6. Write ALL 3 SHEETS with xlsxwriter
     with pd.ExcelWriter(
         result_path,
         engine='xlsxwriter',
         engine_kwargs={'options': {'nan_inf_to_errors': True}}
     ) as writer:
-        # --- Production Sheet ---
-        df_prod.to_excel(writer, sheet_name='Production Completed', index=False)
-        workbook = writer.book
-        ws_prod = writer.sheets['Production Completed']
 
+        # --- 1. Production Completed (with red cells) ---
+        df_prod.to_excel(writer, sheet_name='Production Completed', index=False)
+        ws = writer.sheets['Production Completed']
+        workbook = writer.book
         red_fill   = workbook.add_format({'bg_color': '#FFC7CE'})
         header_fmt = workbook.add_format({'bold': True, 'bg_color': '#D3D3D3'})
 
         # Header
-        for col_num, col_name in enumerate(df_prod.columns):
-            ws_prod.write(0, col_num, col_name, header_fmt)
+        for c, col in enumerate(df_prod.columns):
+            ws.write(0, c, col, header_fmt)
 
-        # Red cells
-        for item in red_cells:
-            if isinstance(item, tuple):
-                r, c = item
-                val = df_prod.iat[r, c]
-                ws_prod.write(r + 1, c, val, red_fill)
+        # Apply red fill
+        for r, c in red_cells:
+            if c is slice(None):  # whole row
+                for col_num in range(len(df_prod.columns)):
+                    ws.write(r + 1, col_num, df_prod.iat[r, col_num], red_fill)
             else:
-                for c in range(len(df_prod.columns)):
-                    val = df_prod.iat[item, c]
-                    ws_prod.write(item + 1, c, val, red_fill)
+                ws.write(r + 1, c, df_prod.iat[r, c], red_fill)
 
-        # --- Quality Report ---
-        report_data = []
-        for user, s in user_stats.items():
-            q = round(s['correct'] / s['total'] * 100, 2) if s['total'] else 0
-            report_data.append([user, s['correct'], s['total'], q])
+        # --- 2. Delivered (copy as-is) ---
+        df_del.to_excel(writer, sheet_name='Delivered', index=False)
+        ws_del = writer.sheets['Delivered']
+        for c, col in enumerate(df_del.columns):
+            ws_del.write(0, c, col, header_fmt)
 
+        # --- 3. Quality Report ---
+        report_data = [
+            [u, s['correct'], s['total'], round(s['correct']/s['total']*100, 2) if s['total'] else 0]
+            for u, s in user_stats.items()
+        ]
         if report_data:
             df_report = pd.DataFrame(report_data, columns=['User Name', 'Matched Cells', 'Total Cells', 'Quality %'])
             df_report.to_excel(writer, sheet_name='Quality Report', index=False)
-            ws_report = writer.sheets['Quality Report']
-            for col_num, col_name in enumerate(df_report.columns):
-                ws_report.write(0, col_num, col_name, header_fmt)
+            ws_rep = writer.sheets['Quality Report']
+            for c, col in enumerate(df_report.columns):
+                ws_rep.write(0, c, col, header_fmt)
 
     # ------------------------------------------------------------------
     # DONE – file written in < 5 seconds even for 50 k rows
